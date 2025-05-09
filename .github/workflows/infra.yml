@@ -9,8 +9,6 @@ on:
         default: "plan"
         type: choice
         options:
-          - init
-          - plan
           - apply
           - destroy
 
@@ -35,18 +33,18 @@ jobs:
       - name: Write GCP credentials to file
         run: echo "${{ secrets.GCP_CREDENTIALS }}" | base64 -d > gcp-key.json
 
-      # Step 5: Initialize Terraform
       - name: Terraform Init
         working-directory: terraform
         run: terraform init
 
-      # Step 6: Run Terraform Command Based on Input
+      - name: Terraform Plan
+        working-directory: terraform
+        run: terraform plan
+
       - name: Run Terraform Command
         working-directory: terraform
         run: |
-          if [ "${{ github.event.inputs.action }}" == "plan" ]; then
-            terraform plan -var="project_id=${{ secrets.GCP_PROJECT_ID }}"
-          elif [ "${{ github.event.inputs.action }}" == "apply" ]; then
+          if [ "${{ github.event.inputs.action }}" == "apply" ]; then
             terraform apply -auto-approve -var="project_id=${{ secrets.GCP_PROJECT_ID }}"
           elif [ "${{ github.event.inputs.action }}" == "destroy" ]; then
             terraform destroy -auto-approve -var="project_id=${{ secrets.GCP_PROJECT_ID }}"
