@@ -1,7 +1,6 @@
 provider "google" {
   project     = "<your-gcp-project-id>" # Replace with your GCP project ID
   region      = "us-central1"           # Replace with your desired region
-  credentials = file("gcp-key.json") # Replace with the path to your JSON key
 }
 
 resource "google_compute_network" "private_network" {
