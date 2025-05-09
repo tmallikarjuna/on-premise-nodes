@@ -5,6 +5,18 @@ on:
     branches:
       - main
   workflow_dispatch:
+    inputs:
+      action:
+        description: "Select the Terraform action to perform"
+        required: true
+        default: "plan"
+        type: choice
+        options:
+          - init
+          - plan
+          - apply
+          - destroy
+
 
 jobs:
   terraform:
@@ -26,25 +38,25 @@ jobs:
       - name: Write GCP credentials to file
         run: echo "${{ secrets.GCP_CREDENTIALS }}" | base64 -d > gcp-key.json
 
-      - name: Terraform Init
+      # Step 5: Run Terraform Command Based on Input
+      - name: Run Terraform Command
         working-directory: terraform
-        run: terraform init
-
-      - name: Terraform Plan
-        working-directory: terraform
-        run: terraform plan -var="project_id=${{ secrets.GCP_PROJECT_ID }}"
-
-      - name: Terraform Apply
-        working-directory: terraform
-        run: terraform apply -auto-approve -var="project_id=${{ secrets.GCP_PROJECT_ID }}"
-
-      - name: Output Terraform Results
-        working-directory: terraform
-        run: terraform output
-
-      - name: Save Bastion Private Key
-        run: echo "${{ secrets.BASTION_PRIVATE_KEY }}" > bastion-key
-        shell: bash
-
-      - name: SSH into Bastion Host
-        run: ssh -i bastion-key ubuntu@${{ steps.terraform.outputs.bastion_host_public_ip }}
+        run: |
+          case "${{ github.event.inputs.action }}" in
+            init)
+              terraform init
+              ;;
+            plan)
+              terraform plan -var="project_id=${{ secrets.GCP_PROJECT_ID }}"
+              ;;
+            apply)
+              terraform apply -auto-approve -var="project_id=${{ secrets.GCP_PROJECT_ID }}"
+              ;;
+            destroy)
+              terraform destroy -auto-approve -var="project_id=${{ secrets.GCP_PROJECT_ID }}"
+              ;;
+            *)
+              echo "Invalid action: ${{ github.event.inputs.action }}"
+              exit 1
+              ;;
+          esac
