@@ -98,3 +98,10 @@ resource "google_compute_instance" "private_vm" {
     source /etc/environment
   EOT
 }
+
+terraform {
+  backend "gcs" {
+    bucket  = "my-terraform-state" # Replace with your bucket name
+    prefix  = "terraform/state"   # Optional path prefix for the state file
+  }
+}
