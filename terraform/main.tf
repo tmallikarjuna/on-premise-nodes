@@ -101,7 +101,7 @@ resource "google_compute_instance" "private_vm" {
 
 terraform {
   backend "gcs" {
-    bucket  = "my-terraform-state" # Replace with your bucket name
+    bucket  = "on-premise-nodes" # Replace with your bucket name
     prefix  = "terraform/state"   # Optional path prefix for the state file
   }
 }
