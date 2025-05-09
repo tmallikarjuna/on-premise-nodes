@@ -35,25 +35,22 @@ jobs:
       - name: Write GCP credentials to file
         run: echo "${{ secrets.GCP_CREDENTIALS }}" | base64 -d > gcp-key.json
 
-      # Step 5: Run Terraform Command Based on Input
+      # Step 5: Initialize Terraform
+      - name: Terraform Init
+        working-directory: terraform
+        run: terraform init
+
+      # Step 6: Run Terraform Command Based on Input
       - name: Run Terraform Command
         working-directory: terraform
         run: |
-          case "${{ github.event.inputs.action }}" in
-            init)
-              terraform init
-              ;;
-            plan)
-              terraform plan -var="project_id=${{ secrets.GCP_PROJECT_ID }}"
-              ;;
-            apply)
-              terraform apply -auto-approve -var="project_id=${{ secrets.GCP_PROJECT_ID }}"
-              ;;
-            destroy)
-              terraform destroy -auto-approve -var="project_id=${{ secrets.GCP_PROJECT_ID }}"
-              ;;
-            *)
-              echo "Invalid action: ${{ github.event.inputs.action }}"
-              exit 1
-              ;;
-          esac
+          if [ "${{ github.event.inputs.action }}" == "plan" ]; then
+            terraform plan -var="project_id=${{ secrets.GCP_PROJECT_ID }}"
+          elif [ "${{ github.event.inputs.action }}" == "apply" ]; then
+            terraform apply -auto-approve -var="project_id=${{ secrets.GCP_PROJECT_ID }}"
+          elif [ "${{ github.event.inputs.action }}" == "destroy" ]; then
+            terraform destroy -auto-approve -var="project_id=${{ secrets.GCP_PROJECT_ID }}"
+          else
+            echo "Invalid action: ${{ github.event.inputs.action }}"
+            exit 1
+          fi
