@@ -34,6 +34,8 @@ resource "google_compute_instance" "bastion_host" {
   metadata = {
     ssh-keys = "ubuntu:${file("ssh/bastion-key.pub")}"
   }
+
+  tags = ["bastion-host"]
 }
 
 resource "google_compute_instance" "private_vm" {
