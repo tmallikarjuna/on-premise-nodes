@@ -54,6 +54,19 @@ resource "google_compute_instance" "private_vm" {
   }
 }
 
+resource "google_compute_firewall" "allow_ssh" {
+  name    = "allow-ssh"
+  network = google_compute_network.private_network.name
+
+  allow {
+    protocol = "tcp"
+    ports    = ["22"]
+  }
+
+  source_ranges = ["0.0.0.0/0"] # Allows SSH from any IP. Restrict this for better security.
+  target_tags   = ["bastion-host"]
+}
+
 terraform {
   backend "gcs" {
     bucket  = "on-premise-nodes" # Replace with your bucket name
