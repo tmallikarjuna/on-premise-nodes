@@ -48,6 +48,8 @@ jobs:
             terraform apply -auto-approve -var="project_id=${{ secrets.GCP_PROJECT_ID }}"
           elif [ "${{ github.event.inputs.action }}" == "destroy" ]; then
             terraform destroy -auto-approve -var="project_id=${{ secrets.GCP_PROJECT_ID }}"
+          elif [ "${{ github.event.inputs.action }}" == "terminate" ]; then
+            terraform apply -auto-approve -var="project_id=${{ secrets.GCP_PROJECT_ID }}" -var="vm_status=TERMINATED"
           else
             echo "Invalid action: ${{ github.event.inputs.action }}"
             exit 1

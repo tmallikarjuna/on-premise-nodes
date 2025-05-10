@@ -14,3 +14,9 @@ variable "zone" {
   type        = string
   default     = "us-central1-a"
 }
+
+variable "vm_status" {
+  description = "Desired VM status: RUNNING or TERMINATED"
+  type        = string
+  default     = "RUNNING"
+}

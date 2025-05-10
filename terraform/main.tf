@@ -37,6 +37,8 @@ resource "google_compute_instance" "bastion_host" {
 
   tags = ["bastion-host"]
 
+  status = var.vm_status # 👈 status is dynamic
+
   metadata_startup_script = <<-EOT
     #!/bin/bash
     apt-get update
@@ -86,6 +88,8 @@ resource "google_compute_instance" "private_vm" {
     subnetwork = google_compute_subnetwork.private_subnetwork.id
   }
 
+  status = var.vm_status # 👈 status is dynamic
+  
   metadata_startup_script = <<-EOT
     #!/bin/bash
     apt-get update
