@@ -14,10 +14,7 @@ resource "google_compute_subnetwork" "private_subnetwork" {
   region        = "us-central1"
 }
 
-module "bastion-host" {
-  source  = "terraform-google-modules/compute-instance/google"
-  version = "~> 6.0"
-
+resource "google_compute_instance" "bastion_host" {
   name         = "bastion-host"
   machine_type = "e2-micro"
   zone         = "us-central1-a"
@@ -39,14 +36,7 @@ module "bastion-host" {
   }
 
   tags = ["bastion-host"]
-
-  status = var.vm_status # 👈 status is dynamic
-  # This will be set to "RUNNING" or "TERMINATED" based on the variable
-  # passed to the module.
-  # You can use this to control the state of the VM instances.
-  # For example, you can set it to "TERMINATED" to stop the VM instances
-  # and "RUNNING" to start them.
-
+  
   metadata_startup_script = <<-EOT
     #!/bin/bash
     apt-get update
@@ -85,10 +75,7 @@ module "bastion-host" {
   EOT
 }
 
-module "private-vm" {
-  source  = "terraform-google-modules/compute-instance/google"
-  version = "~> 6.0"
-
+resource "google_compute_instance" "private_vm" {
   count        = 2
   name         = "private-vm-${count.index + 1}"
   machine_type = "e2-micro"
@@ -111,12 +98,6 @@ module "private-vm" {
 
   tags = ["private-vm"]
 
-  status = var.vm_status # 👈 status is dynamic
-  # This will be set to "RUNNING" or "TERMINATED" based on the variable
-  # passed to the module.
-  # You can use this to control the state of the VM instances.
-  # For example, you can set it to "TERMINATED" to stop the VM instances
-  # and "RUNNING" to start them.
   metadata_startup_script = <<-EOT
     #!/bin/bash
     apt-get update
