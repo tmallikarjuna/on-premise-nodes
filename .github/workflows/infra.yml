@@ -39,7 +39,7 @@ jobs:
 
       - name: Terraform Plan
         working-directory: terraform
-        run: terraform plan
+        run: terraform plan -var="project_id=${{ secrets.GCP_PROJECT_ID }}"
 
       - name: Run Terraform Command
         working-directory: terraform
