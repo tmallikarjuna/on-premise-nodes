@@ -14,7 +14,10 @@ resource "google_compute_subnetwork" "private_subnetwork" {
   region        = "us-central1"
 }
 
-resource "google_compute_instance" "bastion_host" {
+module "vm" {
+  source  = "terraform-google-modules/compute-instance/google"
+  version = "~> 6.0"
+
   name         = "bastion-host"
   machine_type = "e2-micro"
   zone         = "us-central1-a"
@@ -82,7 +85,10 @@ resource "google_compute_instance" "bastion_host" {
   EOT
 }
 
-resource "google_compute_instance" "private_vm" {
+module "vm" {
+  source  = "terraform-google-modules/compute-instance/google"
+  version = "~> 6.0"
+
   count        = 2
   name         = "private-vm-${count.index + 1}"
   machine_type = "e2-micro"
