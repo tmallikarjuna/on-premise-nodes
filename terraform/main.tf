@@ -143,6 +143,23 @@ resource "google_compute_firewall" "allow_internal_ssh" {
   target_tags   = ["private-vm"]
 }
 
+resource "google_compute_firewall" "allow_dhcp" {
+  name    = "allow-dhcp"
+  network = google_compute_network.private_network.name
+
+  allow {
+    protocol = "udp"
+    ports    = ["67", "68"]
+  }
+
+  source_tags = ["bastion-host"]   # DHCP server (bastion host)
+  target_tags = ["private-vm"]     # DHCP clients (private VMs)
+  direction   = "INGRESS"
+
+  priority     = 1000
+  source_ranges = ["192.168.100.0/24"] # Your subnet range
+}
+
 terraform {
   backend "gcs" {
     bucket  = "on-premise-nodes" # Replace with your bucket name
