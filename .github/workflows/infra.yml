@@ -11,7 +11,7 @@ on:
         options:
           - apply
           - destroy
-
+          - terminate
 
 jobs:
   terraform:
