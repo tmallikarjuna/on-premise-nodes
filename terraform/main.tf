@@ -14,7 +14,7 @@ resource "google_compute_subnetwork" "private_subnetwork" {
   region        = "us-central1"
 }
 
-module "vm" {
+module "bastion-host" {
   source  = "terraform-google-modules/compute-instance/google"
   version = "~> 6.0"
 
@@ -85,7 +85,7 @@ module "vm" {
   EOT
 }
 
-module "vm" {
+module "private-vm" {
   source  = "terraform-google-modules/compute-instance/google"
   version = "~> 6.0"
 
