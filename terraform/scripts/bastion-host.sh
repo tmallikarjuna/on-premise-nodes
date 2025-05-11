@@ -8,24 +8,7 @@ done
 
 # Update the package list and install necessary packages
 sudo apt-get update
-sudo apt-get install -y isc-dhcp-server squid openssh-client
-
-# Configure DHCP server
-sudo bash -c 'cat <<EOF > /etc/dhcp/dhcpd.conf
-default-lease-time 600;
-max-lease-time 7200;
-
-subnet 192.168.100.0 netmask 255.255.255.0 {
-  range 192.168.100.100 192.168.100.200;
-  option routers 192.168.100.1;
-  option domain-name-servers 8.8.8.8, 8.8.4.4;
-  option domain-name "docker.local";
-}
-EOF'
-
-# Restart the DHCP service
-sudo systemctl enable isc-dhcp-server
-sudo systemctl restart isc-dhcp-server
+sudo apt-get install squid openssh-client
 
 # Configure Squid proxy
 sudo bash -c 'cat <<EOF > /etc/squid/squid.conf
