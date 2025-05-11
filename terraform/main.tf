@@ -136,7 +136,7 @@ terraform {
 resource "google_secret_manager_secret" "ssh_key_public" {
   secret_id = "bastion-ssh-key-public"
   replication {
-    automatic = true
+    auto {}
   }
 }
 resource "google_secret_manager_secret_version" "ssh_key_public_version" {
@@ -146,7 +146,7 @@ resource "google_secret_manager_secret_version" "ssh_key_public_version" {
 resource "google_secret_manager_secret" "ssh_key_private" {
   secret_id = "bastion-ssh-private-key"
   replication {
-    automatic = true
+    auto {}
   }
 }
 resource "google_secret_manager_secret_version" "ssh_key_private_version" {
