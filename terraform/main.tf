@@ -4,7 +4,7 @@ provider "google" {
 }
 
 resource "google_compute_network" "private_network" {
-  name = "private-network"
+  name = "private-network-${var.region}"
 }
 
 resource "google_compute_subnetwork" "private_subnetwork" {
