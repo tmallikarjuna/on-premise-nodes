@@ -47,7 +47,7 @@ resource "google_compute_instance" "bastion_host" {
   tags = ["bastion-host"]
   
   metadata_startup_script = <<-EOT
-    ${file("scripts/bastion-host.sh")}
+    ${file("scripts/bastion-host.sh")s}
   EOT
 }
 
@@ -75,13 +75,6 @@ resource "google_compute_instance" "private_vm" {
   tags = ["private-vm"]
 
   metadata_startup_script = <<-EOT
-    #!/bin/bash
-    apt-get update
-    apt-get install -y dhclient openssh-server
-
-    # Configure DHCP client
-    dhclient eth0
-
     # Configure Squid proxy
     echo "export http_proxy=http://192.168.100.2:3128" >> /etc/environment
     echo "export https_proxy=http://192.168.100.2:3128" >> /etc/environment
