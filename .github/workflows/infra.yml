@@ -50,7 +50,7 @@ jobs:
 
       - name: Terraform Init
         working-directory: terraform
-        run: terraform init
+        run: terraform init -backend-config="bucket=on-premise-nodes" -backend-config="prefix=terraform/state-${{ github.event.inputs.region }}" -backend-config="region=${{ github.event.inputs.region }}"
 
       - name: Terraform Plan
         working-directory: terraform
