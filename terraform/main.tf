@@ -18,7 +18,7 @@ resource "google_compute_address" "bastion_internal_ip" {
   name         = "bastion-internal-ip"
   address_type = "INTERNAL"
   subnetwork   = google_compute_subnetwork.private_subnetwork.id
-  address      = "192.168.100.1"
+  address      = "192.168.100.2"
   region       = var.region
 }
 
@@ -116,8 +116,8 @@ resource "google_compute_instance" "private_vm" {
     dhclient eth0
 
     # Configure Squid proxy
-    echo "export http_proxy=http://192.168.100.1:3128" >> /etc/environment
-    echo "export https_proxy=http://192.168.100.1:3128" >> /etc/environment
+    echo "export http_proxy=http://192.168.100.2:3128" >> /etc/environment
+    echo "export https_proxy=http://192.168.100.2:3128" >> /etc/environment
     source /etc/environment
 
     # Enable SSH server
