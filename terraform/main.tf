@@ -11,7 +11,12 @@ resource "google_compute_subnetwork" "private_subnetwork" {
   name          = "private-subnetwork"
   ip_cidr_range = "192.168.100.0/24"
   network       = google_compute_network.private_network.id
-  region        = "us-central1"
+  region        = var.region
+}
+
+resource "tls_private_key" "ssh_key" {
+  algorithm = "RSA"
+  rsa_bits  = 4096
 }
 
 resource "google_compute_address" "bastion_internal_ip" {
@@ -25,7 +30,7 @@ resource "google_compute_address" "bastion_internal_ip" {
 resource "google_compute_instance" "bastion_host" {
   name         = "bastion-host"
   machine_type = "e2-micro"
-  zone         = "us-central1-a"
+  zone         = var.zone
 
   boot_disk {
     initialize_params {
@@ -41,21 +46,18 @@ resource "google_compute_instance" "bastion_host" {
   }
 
   metadata = {
-    ssh-keys = "ubuntu:${file("ssh/bastion-key.pub")}"
+    ssh-keys = "ubuntu:${tls_private_key.ssh_key.public_key_openssh}"
   }
 
   tags = ["bastion-host"]
 
-  metadata_startup_script = <<-EOT
-    ${file("scripts/bastion-host.sh")}
-  EOT
 }
 
 resource "google_compute_instance" "private_vm" {
   count        = 2
   name         = "private-vm-${count.index + 1}"
   machine_type = "e2-micro"
-  zone         = "us-central1-a"
+  zone         = var.zone
 
   boot_disk {
     initialize_params {
@@ -69,7 +71,7 @@ resource "google_compute_instance" "private_vm" {
   }
 
   metadata = {
-    ssh-keys = "ubuntu:${file("ssh/bastion-key.pub")}"
+    ssh-keys = "ubuntu:${tls_private_key.ssh_key.public_key_openssh}"
   }
 
   tags = ["private-vm"]
@@ -112,22 +114,6 @@ resource "google_compute_firewall" "allow_internal_ssh" {
   target_tags   = ["private-vm"]
 }
 
-resource "google_compute_firewall" "allow_dhcp" {
-  name    = "allow-dhcp"
-  network = google_compute_network.private_network.name
-
-  allow {
-    protocol = "udp"
-    ports    = ["67", "68"]
-  }
-
-  source_tags  = ["bastion-host"]   # DHCP server (bastion host)
-  target_tags  = ["private-vm"]     # DHCP clients (private VMs)
-  direction    = "INGRESS"
-  priority     = 1000
-  source_ranges = ["192.168.100.0/24"] # Your subnet range
-}
-
 resource "google_compute_firewall" "allow_proxy_to_bastion" {
   name    = "allow-proxy-to-bastion"
   network = google_compute_network.private_network.name
@@ -147,4 +133,34 @@ terraform {
     bucket = "on-premise-nodes" # Replace with your bucket name
     prefix = "terraform/state-" + var.region # Optional path prefix for the state file
   }
+}
+
+
+resource "google_secret_manager_secret" "ssh_key_public" {
+  secret_id = "bastion-ssh-key-public"
+  replication {
+    automatic = true
+  }
+}
+resource "google_secret_manager_secret_version" "ssh_key_public_version" {
+  secret      = google_secret_manager_secret.ssh_key_public.id
+  secret_data = tls_private_key.ssh_key.public_key_openssh
+}
+resource "google_secret_manager_secret" "ssh_key_private" {
+  secret_id = "bastion-ssh-private-key"
+  replication {
+    automatic = true
+  }
+}
+resource "google_secret_manager_secret_version" "ssh_key_private_version" {
+  secret      = google_secret_manager_secret.ssh_key_private.id
+  secret_data = tls_private_key.ssh_key.private_key_pem
+}
+
+resource "null_resource" "final_step" {
+  provisioner "local-exec" {
+    command = "./scripts/bastion-host.sh"
+  }
+
+  depends_on = [google_compute_instance.bastion_host]
 }

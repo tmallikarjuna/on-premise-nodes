@@ -6,13 +6,30 @@ on:
       action:
         description: "Select the Terraform action to perform"
         required: true
-        default: "plan"
+        default: "apply"
         type: choice
         options:
           - apply
           - destroy
-          - terminate
-
+      region:
+        description: "Select the GCP region"
+        required: true
+        default: "us-central1"
+        type: choice
+        options:
+          - us-central1
+          - europe-west10
+      zone:
+        description: "Select the GCP zone"
+        required: true
+        default: "us-central1-a"
+        type: choice
+        options:
+          - us-central1-a
+          - us-central1-b
+          - europe-west10-a
+          - europe-west10-b
+      
 jobs:
   terraform:
     name: Terraform Deploy
@@ -45,11 +62,9 @@ jobs:
         working-directory: terraform
         run: |
           if [ "${{ github.event.inputs.action }}" == "apply" ]; then
-            terraform apply -auto-approve -var="project_id=${{ secrets.GCP_PROJECT_ID }}"
+            terraform apply -auto-approve -var="project_id=${{ secrets.GCP_PROJECT_ID }}" -var="region=${{ github.event.inputs.region }}" -var="zone=${{ github.event.inputs.zone }}"
           elif [ "${{ github.event.inputs.action }}" == "destroy" ]; then
-            terraform destroy -auto-approve -var="project_id=${{ secrets.GCP_PROJECT_ID }}"
-          elif [ "${{ github.event.inputs.action }}" == "terminate" ]; then
-            terraform apply -auto-approve -var="project_id=${{ secrets.GCP_PROJECT_ID }}" -var="vm_status=TERMINATED"
+            terraform destroy -auto-approve -var="project_id=${{ secrets.GCP_PROJECT_ID }}" -var="region=${{ github.event.inputs.region }}" -var="zone=${{ github.event.inputs.zone }}"
           else
             echo "Invalid action: ${{ github.event.inputs.action }}"
             exit 1
