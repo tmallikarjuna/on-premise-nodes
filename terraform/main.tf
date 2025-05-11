@@ -47,40 +47,7 @@ resource "google_compute_instance" "bastion_host" {
   tags = ["bastion-host"]
   
   metadata_startup_script = <<-EOT
-    #!/bin/bash
-    apt-get update
-    apt-get install -y isc-dhcp-server squid openssh-client
-
-    # Configure DHCP server
-    cat <<EOF > /etc/dhcp/dhcpd.conf
-    default-lease-time 600;
-    max-lease-time 7200;
-
-    subnet 192.168.100.0 netmask 255.255.255.0 {
-      range 192.168.100.100 192.168.100.200;
-      option routers 192.168.100.1;
-      option domain-name-servers 8.8.8.8, 8.8.4.4;
-      option domain-name "docker.local";
-    }
-    EOF
-
-    systemctl restart isc-dhcp-server
-
-    # Configure Squid proxy
-    cat <<EOF > /etc/squid/squid.conf
-    http_port 3128
-    acl localnet src 192.168.100.0/24
-    http_access allow localnet
-    http_access deny all
-    EOF
-
-    systemctl restart squid
-
-    # Copy SSH key for accessing private VMs
-    mkdir -p /home/ubuntu/.ssh
-    cp /etc/ssh/ssh_host_rsa_key.pub /home/ubuntu/.ssh/authorized_keys
-    chown -R ubuntu:ubuntu /home/ubuntu/.ssh
-    chmod 600 /home/ubuntu/.ssh/authorized_keys
+    ${file("path/to/your-setup-script.sh")}
   EOT
 }
 
