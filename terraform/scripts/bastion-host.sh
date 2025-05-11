@@ -7,11 +7,11 @@ while fuser /var/lib/dpkg/lock-frontend >/dev/null 2>&1; do
 done
 
 # Update the package list and install necessary packages
-apt-get update
-apt-get install squid openssh-client
+sudo apt-get update
+sudo apt-get install squid openssh-client
 
 # Configure Squid proxy
-bash -c 'cat <<EOF > /etc/squid/squid.conf
+sudo bash -c 'cat <<EOF > /etc/squid/squid.conf
 http_port 3128
 acl localnet src 192.168.100.0/24
 http_access allow localnet
@@ -19,11 +19,11 @@ http_access deny all
 EOF'
 
 # Restart Squid service
-systemctl enable squid
-systemctl restart squid
+sudo systemctl enable squid
+sudo systemctl restart squid
 
 # Configure SSH key for accessing private VMs
-mkdir -p /home/ubuntu/.ssh
-cp /etc/ssh/ssh_host_rsa_key.pub /home/ubuntu/.ssh/authorized_keys
-chown -R ubuntu:ubuntu /home/ubuntu/.ssh
-chmod 600 /home/ubuntu/.ssh/authorized_keys
+sudo mkdir -p /home/ubuntu/.ssh
+sudo cp /etc/ssh/ssh_host_rsa_key.pub /home/ubuntu/.ssh/authorized_keys
+sudo chown -R ubuntu:ubuntu /home/ubuntu/.ssh
+sudo chmod 600 /home/ubuntu/.ssh/authorized_keys
