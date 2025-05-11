@@ -160,6 +160,20 @@ resource "google_compute_firewall" "allow_dhcp" {
   source_ranges = ["192.168.100.0/24"] # Your subnet range
 }
 
+resource "google_compute_firewall" "allow_proxy_to_bastion" {
+  name    = "allow-proxy-to-bastion"
+  network = google_compute_network.private_network.name
+
+  allow {
+    protocol = "tcp"
+    ports    = ["3128"]
+  }
+
+  source_tags = ["private-vm"]       # VMs using the proxy
+  target_tags = ["bastion-host"]     # Squid proxy host
+  direction   = "INGRESS"
+}
+
 terraform {
   backend "gcs" {
     bucket  = "on-premise-nodes" # Replace with your bucket name
