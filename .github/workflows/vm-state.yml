@@ -1,0 +1,42 @@
+name: Manage GCP VM State
+
+on:
+  workflow_dispatch:
+    inputs:
+      action:
+        description: 'Action to perform on VM'
+        required: true
+        default: 'stop'
+        type: choice
+        options:
+          - start
+          - stop
+
+jobs:
+  control-vms:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Authenticate to GCP
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_CREDENTIALS }}
+
+      - name: Set up gcloud CLI
+        uses: google-github-actions/setup-gcloud@v2
+
+      - name: Get VM list and manage state
+        env:
+          ZONE: us-central1-a
+        run: |
+          ACTION="${{ github.event.inputs.action }}"
+
+          # Get all VM names with tag 'private-vm' OR named 'bastion-host'
+          VMS=$(gcloud compute instances list \
+            --filter="(tags.items:private-vm OR name=bastion-host) AND zone:($ZONE)" \
+            --format="value(name)")
+
+          for VM in $VMS; do
+            echo "Executing '$ACTION' on $VM"
+            gcloud compute instances $ACTION "$VM" --zone "$ZONE"
+          done
