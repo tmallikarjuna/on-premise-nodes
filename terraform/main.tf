@@ -131,7 +131,7 @@ resource "google_compute_firewall" "allow_proxy_to_bastion" {
 terraform {
   backend "gcs" {
     bucket = "on-premise-nodes" # Replace with your bucket name
-    prefix = "terraform/state-" + var.region # Optional path prefix for the state file
+    prefix = "terraform/state-${var.region}" # Optional path prefix for the state file
   }
 }
 
