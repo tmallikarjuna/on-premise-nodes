@@ -3,6 +3,14 @@ name: Manage GCP VM State
 on:
   workflow_dispatch:
     inputs:
+      region:
+        description: "Select the GCP region"
+        required: true
+        default: "us-central1"
+        type: choice
+        options:
+          - us-central1
+          - europe-west10
       action:
         description: 'Action to perform on VM'
         required: true
@@ -27,7 +35,7 @@ jobs:
 
       - name: Get VM list and manage state
         env:
-          ZONE: us-central1-a
+          ZONE: ${{ github.event.inputs.region }}-a
         run: |
           ACTION="${{ github.event.inputs.action }}"
 

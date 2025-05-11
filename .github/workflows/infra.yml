@@ -26,10 +26,8 @@ on:
         type: choice
         options:
           - us-central1-a
-          - us-central1-b
           - europe-west10-a
-          - europe-west10-b
-      
+          
 jobs:
   terraform:
     name: Terraform Deploy
