@@ -47,7 +47,7 @@ resource "google_compute_instance" "bastion_host" {
   tags = ["bastion-host"]
   
   metadata_startup_script = <<-EOT
-    ${file("path/to/your-setup-script.sh")}
+    ${file("scripts/bastion-host.sh")}
   EOT
 }
 
