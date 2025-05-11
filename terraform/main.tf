@@ -14,6 +14,14 @@ resource "google_compute_subnetwork" "private_subnetwork" {
   region        = "us-central1"
 }
 
+resource "google_compute_address" "bastion_internal_ip" {
+  name         = "bastion-internal-ip"
+  address_type = "INTERNAL"
+  subnetwork   = google_compute_subnetwork.private_subnetwork.id
+  address      = "192.168.100.1"
+  region       = var.region
+}
+
 resource "google_compute_instance" "bastion_host" {
   name         = "bastion-host"
   machine_type = "e2-micro"
@@ -28,6 +36,7 @@ resource "google_compute_instance" "bastion_host" {
   network_interface {
     network    = google_compute_network.private_network.id
     subnetwork = google_compute_subnetwork.private_subnetwork.id
+    network_ip   = google_compute_address.bastion_internal_ip.address
     access_config {} # Enables public IP
   }
 
