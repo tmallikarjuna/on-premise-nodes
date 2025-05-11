@@ -1,6 +1,6 @@
 provider "google" {
-  project     = var.project_id # Replace with your GCP project ID
-  region      = var.region     # Replace with your desired region
+  project = var.project_id # Replace with your GCP project ID
+  region  = var.region     # Replace with your desired region
 }
 
 resource "google_compute_network" "private_network" {
@@ -34,8 +34,8 @@ resource "google_compute_instance" "bastion_host" {
   }
 
   network_interface {
-    network    = google_compute_network.private_network.id
-    subnetwork = google_compute_subnetwork.private_subnetwork.id
+    network      = google_compute_network.private_network.id
+    subnetwork   = google_compute_subnetwork.private_subnetwork.id
     network_ip   = google_compute_address.bastion_internal_ip.address
     access_config {} # Enables public IP
   }
@@ -45,9 +45,9 @@ resource "google_compute_instance" "bastion_host" {
   }
 
   tags = ["bastion-host"]
-  
+
   metadata_startup_script = <<-EOT
-    ${file("scripts/bastion-host.sh")s}
+    ${file("scripts/bastion-host.sh")}
   EOT
 }
 
@@ -121,10 +121,9 @@ resource "google_compute_firewall" "allow_dhcp" {
     ports    = ["67", "68"]
   }
 
-  source_tags = ["bastion-host"]   # DHCP server (bastion host)
-  target_tags = ["private-vm"]     # DHCP clients (private VMs)
-  direction   = "INGRESS"
-
+  source_tags  = ["bastion-host"]   # DHCP server (bastion host)
+  target_tags  = ["private-vm"]     # DHCP clients (private VMs)
+  direction    = "INGRESS"
   priority     = 1000
   source_ranges = ["192.168.100.0/24"] # Your subnet range
 }
@@ -145,7 +144,7 @@ resource "google_compute_firewall" "allow_proxy_to_bastion" {
 
 terraform {
   backend "gcs" {
-    bucket  = "on-premise-nodes" # Replace with your bucket name
-    prefix  = "terraform/state"   # Optional path prefix for the state file
+    bucket = "on-premise-nodes" # Replace with your bucket name
+    prefix = "terraform/state-" + var.region # Optional path prefix for the state file
   }
 }
