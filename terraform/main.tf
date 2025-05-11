@@ -89,7 +89,7 @@ resource "google_compute_instance" "private_vm" {
 }
 
 resource "google_compute_firewall" "allow_ssh" {
-  name    = "allow-ssh"
+  name    = "allow-ssh-${var.region}"
   network = google_compute_network.private_network.name
 
   allow {
@@ -102,7 +102,7 @@ resource "google_compute_firewall" "allow_ssh" {
 }
 
 resource "google_compute_firewall" "allow_internal_ssh" {
-  name    = "allow-internal-ssh"
+  name    = "allow-internal-ssh-${var.region}"
   network = google_compute_network.private_network.name
 
   allow {
@@ -115,7 +115,7 @@ resource "google_compute_firewall" "allow_internal_ssh" {
 }
 
 resource "google_compute_firewall" "allow_proxy_to_bastion" {
-  name    = "allow-proxy-to-bastion"
+  name    = "allow-proxy-to-bastion-${var.region}"
   network = google_compute_network.private_network.name
 
   allow {
