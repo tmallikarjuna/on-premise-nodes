@@ -153,11 +153,3 @@ resource "google_secret_manager_secret_version" "ssh_key_private_version" {
   secret      = google_secret_manager_secret.ssh_key_private.id
   secret_data = tls_private_key.ssh_key.private_key_pem
 }
-
-resource "null_resource" "final_step" {
-  provisioner "local-exec" {
-    command = "./scripts/bastion-host.sh"
-  }
-
-  depends_on = [google_compute_instance.bastion_host]
-}
