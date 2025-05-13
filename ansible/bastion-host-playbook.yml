@@ -1,0 +1,22 @@
+---
+- name: Configure Bastion Host
+  hosts: bastion-host
+  become: true
+  tasks:
+    # Step 1: Copy the shell script to the bastion host
+    - name: Copy bastion-host.sh script
+      copy:
+        src: ../scripts/bastion-host.sh
+        dest: /tmp/bastion-host.sh
+        mode: '0755'
+
+    # Step 2: Execute the shell script
+    - name: Execute bastion-host.sh script
+      command: /tmp/bastion-host.sh
+
+    # Step 3: Ensure Squid service is running
+    - name: Ensure Squid service is enabled and running
+      service:
+        name: squid
+        state: started
+        enabled: true
