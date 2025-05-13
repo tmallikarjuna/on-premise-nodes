@@ -21,26 +21,21 @@ jobs:
         with:
           credentials_json: ${{ secrets.GCP_CREDENTIALS }}
 
-      # Step 3: Retrieve Private Key from Secret Manager
+      # Step 3: Install gcloud CLI
+      - name: Install gcloud CLI
+        uses: google-github-actions/setup-gcloud@v1
+        with:
+          version: "latest"
+
+      # Step 4: Retrieve Private Key from Secret Manager
       - name: Retrieve Private Key
-        id: private_key
-        uses: google-github-actions/secret-manager@v1
-        with:
-          secret: bastion-ssh-private-key
-
-      # Step 4: Retrieve Public Key from Secret Manager
-      - name: Retrieve Public Key
-        id: public_key
-        uses: google-github-actions/secret-manager@v1
-        with:
-          secret: bastion-ssh-key-public
-
-      # Step 5: Write SSH Keys to Files
-      - name: Write SSH Keys to Files
         run: |
-          echo "${{ steps.private_key.outputs.secret }}" > bastion-ssh-private-key.pem
-          echo "${{ steps.public_key.outputs.secret }}" > bastion-ssh-key-public.pub
-          echo "SSH keys written to files."
+          gcloud secrets versions access latest --secret="bastion-ssh-private-key" > bastion-ssh-private-key.pem
+
+      # Step 5: Retrieve Public Key from Secret Manager
+      - name: Retrieve Public Key
+        run: |
+          gcloud secrets versions access latest --secret="bastion-ssh-key-public" > bastion-ssh-key-public.pub
 
       # Step 6: Set File Permissions
       - name: Set File Permissions
